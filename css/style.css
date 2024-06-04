@@ -144,4 +144,10 @@ a {
         top:5.5vw;
         right:5.5vw;
     }
+
+    /*---------------Página Mapa---------------*/
+    .map{
+        width: 100vw;
+        height: 100vh;
+    }
 }
