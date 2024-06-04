@@ -149,7 +149,7 @@ a {
     /*---------------Página Mapa---------------*/
     .map{
         width: 100vw;
-        height: 100vh;
+        height: 99vh;
     }
 
     a#back_click{
@@ -194,5 +194,26 @@ a {
         height: 80vw;
         position: absolute;
         bottom:0;
+    }
+
+    nav{
+        position: absolute;
+        background-color: white;
+        border-top: 2px solid #f3f3f3;
+        width: 100vw;
+        height: 7vh;
+        display: flex;
+        gap: 20vw;
+        bottom: 0;
+        align-items: center;
+    }
+
+    nav > a{
+        margin-left: 22vw;
+        margin-top: 1vh
+    }
+
+    nav > a > img{
+        width: 7vw;
     }
 }
