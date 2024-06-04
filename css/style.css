@@ -31,7 +31,7 @@ a {
         margin-bottom: 20vw;
     }
 
-    #text_option {
+    p {
         margin-left: 7vw;
         margin-bottom: 5vw;
     }
@@ -111,7 +111,37 @@ a {
 
     h4{
         margin-left: 7vw;
-        
         margin-bottom: 2vw; 
+    }
+
+    div.noti_container{
+        position: relative;
+        width: 80vw;
+        height: 10vw;
+       
+        align-items: center;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        padding: 3vw;
+
+        margin-left: 7vw;
+        margin-bottom: 5vw;
+        border-radius: 5px;
+    }
+
+    p.date{
+        font-size: 3.8vw;
+        margin-bottom: 1vw;
+    }
+
+    p.info{
+        margin-top: 0;
+    }
+
+    img.button{
+        position: absolute;
+        width: 6vw;
+        top:5.5vw;
+        right:5.5vw;
     }
 }
