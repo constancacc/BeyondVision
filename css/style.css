@@ -150,6 +150,8 @@ a {
     .map{
         width: 100vw;
         height: 99vh;
+
+        z-index:0;
     }
 
     a#back_click{
@@ -164,7 +166,7 @@ a {
     width: 5vw;
     height: 5vw;
 
-    z-index: 2;
+    z-index: 4;
     }
 
     a#back_click > img{
