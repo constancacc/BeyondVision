@@ -198,6 +198,7 @@ a {
         bottom:0;
     }
 
+    /*-------------- NavBar ----------------------*/
     nav{
         position: absolute;
         background-color: white;
@@ -217,5 +218,22 @@ a {
 
     nav > a.nav_button > img{
         width: 7vw;
+    }
+
+
+    /*------------ Profile ----------------*/
+
+    div.profile_title{
+        display: grid;
+        justify-content: center;
+    }
+
+    .user_name{
+        margin-left: 0;
+        margin-top: 2vh;
+    }
+
+    .img_profile{
+        width: 30vw;
     }
 }
