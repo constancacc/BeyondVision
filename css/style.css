@@ -18,6 +18,7 @@ a {
     }
     .mobile {
         display: block;
+        position:relative;
     }
     body {
         font-family: 'Montserrat', sans-serif;
@@ -149,5 +150,49 @@ a {
     .map{
         width: 100vw;
         height: 100vh;
+    }
+
+    a#back_click{
+    position: absolute;
+    background-color: white;
+   
+    left: 3vw;
+    top: 8vh;
+    padding: 2vw;
+    border-radius: 10vw;
+
+    width: 5vw;
+    height: 5vw;
+
+    z-index: 2;
+    }
+
+    a#back_click > img{
+        transform: scaleX(-1);
+        margin-left:-0.5vw;
+    }
+    div.title{
+        display: flex;
+        align-items: center;
+        margin-bottom: 10vw;
+    }
+
+    div.title > h4{
+        font-size: 4.5vw;
+        margin-bottom: 0;
+    }
+
+    div.title > img{
+        width: 17vw;
+    }
+
+    div.info_container{
+        background-color: white;
+        border-top-left-radius: 20vw;
+        border-top-right-radius: 20vw;
+        padding: 8vw;
+        height: 80vw;
+        position: absolute;
+        bottom:0;
     }
 }
