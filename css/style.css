@@ -208,12 +208,12 @@ a {
         align-items: center;
     }
 
-    nav > a{
+    nav > a.nav_button{
         margin-left: 22vw;
         margin-top: 1vh
     }
 
-    nav > a > img{
+    nav > a.nav_button > img{
         width: 7vw;
     }
 }

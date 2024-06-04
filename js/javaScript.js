@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function() {
     labels.forEach(function(label) {
         var link = label.querySelector('p');
         link.addEventListener('click', function() {
-            window.location.href = "./contacts.html"; // Redireciona para a página desejada
+            window.location.href = "./html/contacts.html"; // Redireciona para a página desejada
         });
     });
 });
