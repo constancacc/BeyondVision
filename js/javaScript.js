@@ -1,18 +1,19 @@
+/*CLICKS INDEX*/
 document.addEventListener("DOMContentLoaded", function() {
     var labels = document.querySelectorAll('label.contacts');
    
-
     // ir para outra página só a selecionar uma opção
     labels.forEach(function(label) {
         var link = label.querySelector('p');
         link.addEventListener('click', function() {
-            window.location.href = "./html/contacts.html"; // Redireciona para a página desejada
+            window.location.href = "./html/contacts.html";
         });
     });
 });
 
+/*IFRAME COM LOCALIZAÇÃO VARIÁVEL*/
 function initMap() {
-    // Tenta obter a localização atual do usuário
+    
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
             var lat = position.coords.latitude;
@@ -23,7 +24,7 @@ function initMap() {
             handleLocationError(true);
         });
     } else {
-        // Browser não suporta Geolocation
+        
         handleLocationError(false);
     }
 }
@@ -34,11 +35,11 @@ function handleLocationError(browserHasGeolocation) {
         'Erro: Seu navegador não suporta geolocalização.');
 }
 
-// Função para mudar a localização do mapa
+// Mostrar a localização da queda
 function changeLocation(address) {
     var location_title = document.querySelector('h4.location_title');
     location_title.style.display = "none";
-    
+
     var iframe = document.getElementById('gmap_canvas');
     iframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(address)}&z=13&ie=UTF8&iwloc=&output=embed`;
 }
