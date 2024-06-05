@@ -236,4 +236,24 @@ a {
     .img_profile{
         width: 30vw;
     }
+
+    ul.list{
+        position: relative;
+        list-style: none;
+        margin-top: 10vh;
+        margin-left: 7vw;
+    }
+
+    ul.list > li{
+        position: relative;
+        
+        width: 75vw;
+        padding: 5vw;
+        border-top: 1px solid #BABABA; 
+    }
+
+    ul.list > li:nth-last-child(1){
+        color: red;
+        border-bottom: 1px solid #BABABA; 
+    }
 }
