@@ -5,6 +5,7 @@
 
 .mobile {
     display: none;
+ 
 }
 
 a {
@@ -19,6 +20,7 @@ a {
     .mobile {
         display: block;
         position:relative;
+        height:100svh;
     }
     body {
         font-family: 'Montserrat', sans-serif;
