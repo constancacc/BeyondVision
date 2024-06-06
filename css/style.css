@@ -167,9 +167,12 @@ a {
     /*---------------Página Mapa---------------*/
     .map{
         width: 100vw;
-        height: 99vh;
+        height: 85dvh;
 
         z-index:0;
+
+        position: relative;
+        top: -20vw;
     }
 
     a#back_click{
