@@ -1,11 +1,12 @@
 // mqtt.js
 
 // Conectar ao broker MQTT (Mosquitto)
-const client = mqtt.connect('ws://YOUR_MOSQUITTO_BROKER_ADDRESS:YOUR_PORT'); // Substitua pelo endereço e porta do seu broker
+/*
+const client = mqtt.connect('ws://test.mosquitto.org:1883'); // Substitua pelo endereço e porta do seu broker
 
 client.on('connect', function () {
     console.log('Conectado ao broker MQTT (Mosquitto)');
-    client.subscribe('your/mqtt/topic'); // Substitua pelo tópico que você quer assinar
+    client.subscribe('bracelet/'); // Substitua pelo tópico que você quer assinar
 });
 
 client.on('message', function (topic, message) {
@@ -14,12 +15,40 @@ client.on('message', function (topic, message) {
 
     // Verifique se a mensagem é 'crash'
     if (payload === 'crash') {
-        Notificação();
-        
+        Notificacao(); 
     }
 });
+*/
+// Connect to the MQTT broker
+const client = mqtt.connect('ws://test.mosquitto.org:1883'); // Replace with your broker's WebSocket URL
 
-function Notificação() {
+// Define the topic to subscribe to
+const topic = 'bracelet/'; // Replace with your topic
+
+// When the client is connected, subscribe to the topic
+client.on('connect', () => {
+    console.log('Connected to broker');
+    client.subscribe(topic, (err) => {
+        if (!err) {
+            console.log(⁠ Subscribed to topic: ${topic} ⁠);
+        }
+    });
+});
+
+// Handle incoming messages
+client.on('message', (topic, message) => {
+    // Convert the message to a string and display it
+    const msg = message.toString();
+    console.log(⁠ Received message on ${topic}: ${msg} ⁠);
+    
+    // Append message to the messages div
+    const messagesDiv = document.getElementById('messages');
+    const newMessage = document.createElement('div');
+    newMessage.textContent = ⁠ Topic: ${topic}, Message: ${msg} ⁠;
+    messagesDiv.appendChild(newMessage);
+});
+
+function Notificacao() {
     let paragraph = document.querySelector('p#text_option');
     paragraph.style.display = "none";
     
@@ -36,7 +65,7 @@ function Notificação() {
 
         let info = document.createElement("p");
         info.classList.add("info");
-        info.textContent = "New Notification Content"; // Adicione o conteúdo da notificação
+        info.textContent = "Bracelet Fall Detection"; // Adicione o conteúdo da notificação
 
         let link = document.createElement("a");
         link.href = "./map.html";
