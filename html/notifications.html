@@ -27,14 +27,20 @@
     <h2> Notifications</h2>
 
     <h4> Recent </h4>
+    <div class="noti2">
     <p id="text_option"> There are no recent notifications </p>
+
+    </div>
+    
     <h4> Old</h4>
-    <div class="noti_container">
-      <p class="date"> 16/02/2024</p>
-      <p class="info"> Bracelet Fall Detection</p>
-      <a href="./map.html">
-        <img class="button" src="../img/click.svg"> 
-      </a>
+    <div class="noti">
+      <div class="noti_container">
+        <p class="date"> 16/02/2024</p>
+        <p class="info"> Bracelet Fall Detection</p>
+        <a href="./map.html">
+          <img class="button" src="../img/click.svg"> 
+        </a>
+      </div>
     </div>
 
 
@@ -50,7 +56,12 @@
 
   </div>
 
+
+
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<script src="../js/mqtt.js"></script>
 <script src="../js/javaScript.js"></script>
+
 </body>
 
 </html>
