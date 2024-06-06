@@ -2,7 +2,7 @@
 
 // Conectar ao broker MQTT (Mosquitto)
 /*
-const client = mqtt.connect('ws://test.mosquitto.org:1883'); // Substitua pelo endereço e porta do seu broker
+const client = mqtt.connect('ws://broker.hivemq.com:8000/mqtt'); // Substitua pelo endereço e porta do seu broker
 
 client.on('connect', function () {
     console.log('Conectado ao broker MQTT (Mosquitto)');
@@ -20,7 +20,7 @@ client.on('message', function (topic, message) {
 });
 */
 // Connect to the MQTT broker
-const client = mqtt.connect('ws://test.mosquitto.org:1883'); // Replace with your broker's WebSocket URL
+const client = mqtt.connect('ws://broker.hivemq.com:8000/mqtt'); // Replace with your broker's WebSocket URL
 
 // Define the topic to subscribe to
 const topic = 'bracelet/'; // Replace with your topic
@@ -30,7 +30,7 @@ client.on('connect', () => {
     console.log('Connected to broker');
     client.subscribe(topic, (err) => {
         if (!err) {
-            console.log(⁠ Subscribed to topic: ${topic} ⁠);
+            console.log("Subscribed to topic: ${topic}");
         }
     });
 });
@@ -39,13 +39,12 @@ client.on('connect', () => {
 client.on('message', (topic, message) => {
     // Convert the message to a string and display it
     const msg = message.toString();
-    console.log(⁠ Received message on ${topic}: ${msg} ⁠);
+    console.log("Received message on ${topic}: ${msg}");
     
     // Append message to the messages div
-    const messagesDiv = document.getElementById('messages');
-    const newMessage = document.createElement('div');
-    newMessage.textContent = ⁠ Topic: ${topic}, Message: ${msg} ⁠;
-    messagesDiv.appendChild(newMessage);
+    if (msg === 'crash') {
+        Notificacao(); 
+    }
 });
 
 function Notificacao() {
