@@ -226,7 +226,7 @@ a {
         background-color: white;
         border-top: 2px solid #f3f3f3;
         width: 100vw;
-        height: 3vh;
+        height: 4vh;
         display: flex;
         gap: 20vw;
         bottom: -2vh;
@@ -234,6 +234,7 @@ a {
     }
 
     nav > a.nav_button{
+        padding: 0.5vh;
         margin-left: 22vw;
         margin-top: 1vh
     }
