@@ -213,14 +213,6 @@ a {
         bottom:0;
     }
 
-    h4.location_title{
-        position: absolute;
-        top: 17vw;
-        left: 25vw;
-        background-color: #f3f3f3;
-        padding:3vw;
-        border-radius: 30vw;
-    }
 
     /*-------------- NavBar ----------------------*/
     nav{
