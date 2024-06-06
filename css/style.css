@@ -112,7 +112,8 @@ a {
 
     h4{
         margin-left: 7vw;
-        margin-bottom: 2vw; 
+        margin-bottom: 2vw;
+        font-weight: 600;
     }
 
     div.noti_container{

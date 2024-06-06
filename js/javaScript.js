@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 /*IFRAME COM LOCALIZAÇÃO VARIÁVEL*/
 function initMap() {
-    
+
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
             var lat = position.coords.latitude;
@@ -23,8 +23,7 @@ function initMap() {
         }, function() {
             handleLocationError(true);
         });
-    } else {
-        
+    } else { 
         handleLocationError(false);
     }
 }
