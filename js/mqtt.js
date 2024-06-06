@@ -23,14 +23,14 @@ client.on('message', function (topic, message) {
 const client = mqtt.connect('ws://broker.hivemq.com:8000/mqtt'); // Replace with your broker's WebSocket URL
 
 // Define the topic to subscribe to
-const topic = 'bracelet/'; // Replace with your topic
+const topic = 'bracelet'; // Replace with your topic
 
 // When the client is connected, subscribe to the topic
 client.on('connect', () => {
     console.log('Connected to broker');
     client.subscribe(topic, (err) => {
         if (!err) {
-            console.log("Subscribed to topic: ${topic}");
+            console.log(`Subscribed to topic: ${topic}`);
         }
     });
 });
@@ -39,7 +39,7 @@ client.on('connect', () => {
 client.on('message', (topic, message) => {
     // Convert the message to a string and display it
     const msg = message.toString();
-    console.log("Received message on ${topic}: ${msg}");
+    console.log(`Received message on ${topic}: ${msg}`);
     
     // Append message to the messages div
     if (msg === 'crash') {
@@ -51,7 +51,7 @@ function Notificacao() {
     let paragraph = document.querySelector('p#text_option');
     paragraph.style.display = "none";
     
-    let container = document.querySelector('.noti'); // Seleciona o container correto
+    let container = document.querySelector('.noti2'); // Seleciona o container correto
 
    
         // Cria um novo container de notificação
@@ -60,7 +60,10 @@ function Notificacao() {
         
         let date = document.createElement("p");
         date.classList.add("date");
-        date.textContent = "17/02/2024"; // Adicione a data da notificação
+
+        let date_now = new Date();
+        date.textContent = date_now.toLocaleString(); // Adicione a data da notificação
+        localStorage.setItem(date_now.getTime(), date.textContent);
 
         let info = document.createElement("p");
         info.classList.add("info");
