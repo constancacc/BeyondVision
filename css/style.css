@@ -229,7 +229,7 @@ a {
         height: 3vh;
         display: flex;
         gap: 20vw;
-        bottom: 0;
+        bottom: -3vh;
         align-items: center;
     }
 
