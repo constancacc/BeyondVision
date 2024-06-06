@@ -107,7 +107,21 @@ a {
         margin-bottom: 5vw;
         border-radius: 5px;
     }
+    .nxt_button{
+        background-color: #F9690B;
+        color: white;
+        border-radius: 5vw;
+        width: 30vw;
 
+        display: inline-block;
+        text-align: center;
+        font-weight: 500;
+
+        position: absolute;
+        right:6vw;
+
+        margin-top: 1vh;
+    }
     /*--------------- Notificações ------------------*/
 
     h4{
