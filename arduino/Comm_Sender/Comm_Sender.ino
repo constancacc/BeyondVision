@@ -27,7 +27,7 @@
 /* Assign a unique ID to this sensor at the same time */
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 //----------------------------------------
-#define BTN_Pin 16
+#define BTN_Pin 15
 //----------------------------------------
 uint8_t broadcastAddress[] = { 0x24, 0x6F, 0x28, 0xF0, 0x66, 0x64 };  //--> REPLACE WITH THE MAC Address of your receiver.
 
@@ -55,6 +55,9 @@ MQTTClient client = MQTTClient(256);
 
 const char MQTT_BROKER_ADRESS[] = "broker.hivemq.com";
 const int MQTT_PORT = 1883;
+
+unsigned long lastReconnectAttempt = 0;
+const unsigned long reconnectInterval = 5000;  // Interval between reconnection attempts
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Callback when data is sent
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
@@ -137,66 +140,57 @@ void loop() {
 
 
   // Set values to send 
-  BTN_State = digitalRead(BTN_Pin);  //--> Reads and holds button states.
-  
-  /* Get a new sensor event */ 
+  BTN_State = digitalRead(BTN_Pin);  // Reads and holds button states.
+
+  // Get a new sensor event 
   sensors_event_t event; 
   accel.getEvent(&event);
- 
-  /* Display the results (acceleration is measured in m/s^2) 
-  Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print("  ");
-  Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print("  ");
-  Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print("  ");Serial.println("m/s^2 ");*/
 
+  // Handle WiFi reconnection
+  if (WiFi.status() != WL_CONNECTED) {
+    unsigned long now = millis();
+    if (now - lastReconnectAttempt > reconnectInterval) {
+      lastReconnectAttempt = now;
+      Serial.println("Reconnecting to WiFi...");
+      WiFi.begin(ssid, pass);
+      if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("Reconnected to WiFi!");
+      }
+    }
+  }
+
+  // Handle MQTT reconnection
   if (!client.connected()) {
     Serial.println("Reconnecting to MQTT broker...");
     connectToMQTT();
+  } else {
+    client.loop();
   }
 
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("Reconnecting to WiFi...");
-    while (WiFi.status() != WL_CONNECTED) {
-      WiFi.begin(ssid, pass);
-      delay(1000);
-      Serial.print(".");
-    }
-    Serial.println("Reconnected to WiFi!");
-  }
-
-  client.loop();
-
+  // Detect crash
   bool crashDetected = (abs(event.acceleration.x) > crashThreshold || abs(event.acceleration.y) > crashThreshold || abs(event.acceleration.z) > crashThreshold);
   if (crashDetected) {
     Serial.println("Crash detected!");
     send_Data.crashDetected = true;
 
-    //esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&send_Data, sizeof(send_Data));
     client.publish("bracelet", "crash");
     Serial.println("Published: bracelet/crash");
-
-    /*if (result == ESP_OK) {
-      Serial.println("Crash notification sent with success");
-    } else {
-      Serial.println("Error sending crash notification");
-    }*/
 
     delay(2000);
   } else {
     send_Data.crashDetected = false;
   }
 
-  
+  // Handle button press
   if (BTN_State == LOW) {
     isBuzzing = !isBuzzing;
 
     Serial.println(isBuzzing);
     send_Data.isBuzzing = isBuzzing;
 
-    Serial.println();
-    Serial.print(">>>>> ");
-    Serial.println("Send data");
+    Serial.println(">>>>> Send data");
 
-    //----------------------------------------Send message via ESP-NOW
+    // Send message via ESP-NOW
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&send_Data, sizeof(send_Data));
 
     if (result == ESP_OK) {
@@ -204,26 +198,26 @@ void loop() {
     } else {
       Serial.println("Error sending the data");
     }
-    //----------------------------------------
 
-    while(BTN_State == LOW) {
+    // Debounce the button
+    while (BTN_State == LOW) {
       BTN_State = digitalRead(BTN_Pin);
       delay(10);
     }
 
-    delay(200);  // Debounce delay
+    delay(200);  // Additional debounce delay
   }
 }
 
 
-void connectToMQTT() {
+bool connectToMQTT() {
   client.begin(MQTT_BROKER_ADRESS, MQTT_PORT, net);
   Serial.println("Connecting to broker...");
 
-  while(!client.connect("braceletESP32BeyondVision")) {
-    Serial.print(".");
-    delay(100);
+  if (client.connect("braceletESP32BeyondVision")) {
+    Serial.println("Connected to MQTT broker!");
+    return true;
   }
-
-  Serial.println("\nConnected to broker!");
+  Serial.print("Failed to connect to MQTT broker, rc=");
+  return false;
 }
