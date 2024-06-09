@@ -11,7 +11,6 @@
 */
 //Pulseira
 //----------------------------------------Load libraries
-#include <esp_now.h>
 #include <WiFi.h>
 #include <Wire.h>
 #include <MQTTClient.h>
@@ -23,30 +22,16 @@
 #define EAP_PASSWORD "2023242951" 
 #define EAP_USERNAME "2023242951@student.uc.pt"
 
-
 /* Assign a unique ID to this sensor at the same time */
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 //----------------------------------------
 #define BTN_Pin 15
 //----------------------------------------
-uint8_t broadcastAddress[] = { 0x24, 0x6F, 0x28, 0xF0, 0x66, 0x64 };  //--> REPLACE WITH THE MAC Address of your receiver.
-
-//----------------------------------------Variables to accommodate the data to be sent.
 int BTN_State = 0;
 bool isBuzzing = false;
 const int crashThreshold = 50; //fall detection
 String success;
 
-// Must match with ESP32 paired.
-typedef struct struct_message {
-  bool isBuzzing;
-  bool crashDetected;
-} struct_message;
-
-struct_message send_Data;  // Create a struct_message to send data.
-
-
-// const char ssid[] = "eduroam";
 const char ssid[] = "Vodafone-2C12CC";
 const char pass[] = "dZhZf2Bh8mjJqXKD";
 
@@ -58,19 +43,6 @@ const int MQTT_PORT = 1883;
 
 unsigned long lastReconnectAttempt = 0;
 const unsigned long reconnectInterval = 5000;  // Interval between reconnection attempts
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Callback when data is sent
-void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  Serial.print("\r\nLast Packet Send Status:\t");
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
-  if (status == 0) {
-    success = "Delivery Success :)";
-  } else {
-    success = "Delivery Fail :(";
-  }
-  Serial.println(">>>>>");
-}
-
 
 void setup() {
   Serial.begin(115200);
@@ -88,7 +60,6 @@ void setup() {
   Serial.println("Connected to WiFi!");
 
   connectToMQTT();
-
   
   /* Initialise the sensor */
   if(!accel.begin())
@@ -102,42 +73,11 @@ void setup() {
 
   pinMode(BTN_Pin, INPUT_PULLUP);
 
-  WiFi.mode(WIFI_STA);  //--> Set device as a Wi-Fi Station
-
-  //----------------------------------------Init ESP-NOW
-  if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
-    return;
-  }
-  //----------------------------------------
-
-  //----------------------------------------Once ESPNow is successfully Init, we will register for Send CB to
-  // get the status of Trasnmitted packet
-  esp_now_register_send_cb(OnDataSent);
-  //----------------------------------------
-
-  //----------------------------------------Register peer
-  esp_now_peer_info_t peerInfo;
-  memset(&peerInfo, 0, sizeof(peerInfo));  // Clear the peer info structure
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  peerInfo.channel = 0;
-  peerInfo.encrypt = false;
-  //----------------------------------------
-
-  //----------------------------------------Add peer
-  if (esp_now_add_peer(&peerInfo) != ESP_OK) {
-    Serial.println("Failed to add peer");
-    return;
-  }
-  //----------------------------------------
-
   Serial.println("Setup completed");
 }
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void loop() {
   ESP.getFreeHeap();
-
 
   // Set values to send 
   BTN_State = digitalRead(BTN_Pin);  // Reads and holds button states.
@@ -171,14 +111,11 @@ void loop() {
   bool crashDetected = (abs(event.acceleration.x) > crashThreshold || abs(event.acceleration.y) > crashThreshold || abs(event.acceleration.z) > crashThreshold);
   if (crashDetected) {
     Serial.println("Crash detected!");
-    send_Data.crashDetected = true;
 
     client.publish("bracelet", "crash");
     Serial.println("Published: bracelet/crash");
 
     delay(2000);
-  } else {
-    send_Data.crashDetected = false;
   }
 
   // Handle button press
@@ -186,18 +123,14 @@ void loop() {
     isBuzzing = !isBuzzing;
 
     Serial.println(isBuzzing);
-    send_Data.isBuzzing = isBuzzing;
 
-    Serial.println(">>>>> Send data");
-
-    // Send message via ESP-NOW
-    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&send_Data, sizeof(send_Data));
-
-    if (result == ESP_OK) {
-      Serial.println("Sent with success");
+    if (isBuzzing) {
+      client.publish("findMyCane", "buzzing");
     } else {
-      Serial.println("Error sending the data");
+      client.publish("findMyCane", "not_buzzing");
     }
+
+    Serial.println("Published: findMyCane");
 
     // Debounce the button
     while (BTN_State == LOW) {
@@ -208,7 +141,6 @@ void loop() {
     delay(200);  // Additional debounce delay
   }
 }
-
 
 bool connectToMQTT() {
   client.begin(MQTT_BROKER_ADRESS, MQTT_PORT, net);

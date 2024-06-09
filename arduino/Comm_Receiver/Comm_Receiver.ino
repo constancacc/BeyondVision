@@ -1,8 +1,6 @@
 //Bengala
-#include <esp_now.h>
 #include <WiFi.h>
-
-uint8_t broadcastAddress[] = {0x24, 0x6F, 0x28, 0xF0, 0x0E, 0x44}; // MAC Address of ESP32 A
+#include <MQTTClient.h>
 
 #define echoPinLong 32  // Echo Pin
 #define trigPinLong 33  // Trigger Pin
@@ -11,6 +9,14 @@ uint8_t broadcastAddress[] = {0x24, 0x6F, 0x28, 0xF0, 0x0E, 0x44}; // MAC Addres
 #define ledPin 2  // Onboard LED
 #define buttonOnOff 25 // Button pin
 #define buzzerPin 26
+
+const char ssid[] = "Vodafone-2C12CC";
+const char pass[] = "dZhZf2Bh8mjJqXKD";
+const char MQTT_BROKER_ADRESS[] = "broker.hivemq.com";
+const int MQTT_PORT = 1883;
+
+WiFiClient net;
+MQTTClient client = MQTTClient(256);
 
 int sensorValue;
 int maximumRange = 20;   // Maximum range needed
@@ -21,22 +27,14 @@ int buttonOnOffState = 0;
 bool isCaneOn = false;
 bool isBuzzing = false;
 
-typedef struct struct_message {
-    bool currentBuzzingState;
-} struct_message_send;
+unsigned long lastReconnectAttempt = 0;
+const unsigned long reconnectInterval = 5000;  // Interval between reconnection attempts
 
-struct_message receive_Data; // Create a struct_message to receive data.
-
-void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
-  memcpy(&receive_Data, incomingData, sizeof(receive_Data));
-  Serial.println();
-  Serial.println("<<<<< Receive Data:");
-  Serial.print("Bytes received: ");
-  Serial.println(len);
-  isBuzzing = receive_Data.currentBuzzingState;
-  Serial.print("Receive Data: ");
-  Serial.println(isBuzzing);
-  Serial.println("<<<<<");
+void messageReceived(String &topic, String &payload) {
+  Serial.println("Incoming: " + topic + " - " + payload);
+  if (topic == "findMyCane") {
+    isBuzzing = (payload == "buzzing");
+  }
 }
 
 void setup() {
@@ -51,30 +49,48 @@ void setup() {
 
   delay(2000);
 
-  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, pass);
+  Serial.println("Connecting to wifi ...");
 
-  if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
-    return;
+  while(WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(1000);
   }
 
-  esp_now_register_recv_cb(OnDataRecv);
+  Serial.println();
+  Serial.println("Connected to WiFi!");
 
-  esp_now_peer_info_t peerInfo;
-  memset(&peerInfo, 0, sizeof(peerInfo));  // Clear the peer info structure
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  peerInfo.channel = 0;  
-  peerInfo.encrypt = false;
+  client.begin(MQTT_BROKER_ADRESS, MQTT_PORT, net);
+  client.onMessage(messageReceived);
 
-  if (esp_now_add_peer(&peerInfo) != ESP_OK){
-    Serial.println("Failed to add peer");
-    return;
-  }
+  connectToMQTT();
 
-  esp_now_register_recv_cb(OnDataRecv); //--> Register for a callback function that will be called when data is received
+  Serial.println("Setup completed");
 }
 
 void loop() {
+  ESP.getFreeHeap();
+
+  // Handle WiFi reconnection
+  if (WiFi.status() != WL_CONNECTED) {
+    unsigned long now = millis();
+    if (now - lastReconnectAttempt > reconnectInterval) {
+      lastReconnectAttempt = now;
+      Serial.println("Reconnecting to WiFi...");
+      WiFi.begin(ssid, pass);
+      if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("Reconnected to WiFi!");
+      }
+    }
+  }
+
+  // Handle MQTT reconnection
+  if (!client.connected()) {
+    Serial.println("Reconnecting to MQTT broker...");
+    connectToMQTT();
+  } else {
+    client.loop();
+  }
 
   if (isBuzzing) {
     tone(buzzerPin, 300);
@@ -132,4 +148,15 @@ void loop() {
     noTone(buzzerPin);
   }
   delay(200);
+}
+
+bool connectToMQTT() {
+  Serial.println("Connecting to broker...");
+  if (client.connect("caneESP32BeyondVision")) {
+    Serial.println("Connected to MQTT broker!");
+    client.subscribe("findMyCane");
+    return true;
+  }
+  Serial.print("Failed to connect to MQTT broker, rc=");
+  return false;
 }
